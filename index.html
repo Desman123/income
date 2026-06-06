@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Keuangan Perusahaan</title>
+
+<style>
+body{
+    font-family:Arial,sans-serif;
+    margin:0;
+    background:#f5f5f5;
+}
+
+.container{
+    width:95%;
+    max-width:500px;
+    margin:auto;
+    padding:20px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,.1);
+    margin-top:20px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin:8px 0;
+    box-sizing:border-box;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    border:none;
+    background:#0d6efd;
+    color:white;
+    border-radius:8px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+}
+
+table th, table td{
+    border:1px solid #ddd;
+    padding:8px;
+    font-size:12px;
+}
+
+.hidden{
+    display:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div id="loginBox" class="card">
+<h2>Login</h2>
+
+<input type="text" id="username" placeholder="Username">
+<input type="password" id="password" placeholder="Password">
+
+<button onclick="login()">Masuk</button>
+
+<p id="loginStatus"></p>
+</div>
+
+<div id="dashboard" class="card hidden">
+
+<h2>Data Keuangan</h2>
+
+<table>
+<thead>
+<tr>
+<th>Tanggal</th>
+<th>Keterangan</th>
+<th>Pemasukan</th>
+<th>Pengeluaran</th>
+</tr>
+</thead>
+<tbody id="dataTable"></tbody>
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxGIHu69wcl-XPZE2vCpSXcpKCd8mC9zHq9VuxfJS6kM4MX_jucyEc_UEAzcMDmGhP6Gw/exec";
+
+async function login(){
+
+let username=document.getElementById("username").value;
+let password=document.getElementById("password").value;
+
+let res = await fetch(SCRIPT_URL,{
+    method:"POST",
+    body:JSON.stringify({
+        action:"login",
+        username:username,
+        password:password
+    })
+});
+
+let data = await res.json();
+
+if(data.status=="success"){
+    document.getElementById("loginBox").classList.add("hidden");
+    document.getElementById("dashboard").classList.remove("hidden");
+    loadData();
+}else{
+    document.getElementById("loginStatus").innerText="Login gagal";
+}
+}
+
+async function loadData(){
+
+let res=await fetch(SCRIPT_URL+"?action=getData");
+let data=await res.json();
+
+let html="";
+
+data.forEach(row=>{
+html += `
+<tr>
+<td>${row.tanggal}</td>
+<td>${row.keterangan}</td>
+<td>${row.pemasukan}</td>
+<td>${row.pengeluaran}</td>
+</tr>
+`;
+});
+
+document.getElementById("dataTable").innerHTML=html;
+
+}
+</script>
+
+</body>
+</html>
