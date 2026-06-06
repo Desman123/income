@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width,initial-scale=1">
+
+<title>Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body{
+background:#f8fafc;
+font-family:Segoe UI;
+}
+
+.header{
+background:#0f172a;
+color:white;
+padding:20px;
+}
+
+.container{
+padding:20px;
+}
+
+.card{
+
+background:white;
+
+padding:20px;
+
+border-radius:15px;
+
+margin-bottom:20px;
+
+box-shadow:
+0 5px 15px rgba(0,0,0,.1);
+
+}
+
+table{
+
+width:100%;
+border-collapse:collapse;
+
+}
+
+th,td{
+
+padding:12px;
+
+border-bottom:
+1px solid #ddd;
+
+}
+
+@media(max-width:768px){
+
+table{
+font-size:12px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+
+<h2>Dashboard Keuangan</h2>
+
+</div>
+
+<div class="container">
+
+<div class="card">
+<canvas id="grafik"></canvas>
+</div>
+
+<div class="card">
+
+<table id="tbl">
+
+<tr>
+
+<th>Tanggal</th>
+<th>Keterangan</th>
+<th>Jenis</th>
+<th>Nominal</th>
+
+</tr>
+
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+const API =
+"https://SCRIPT_WEB_APP_URL";
+
+loadData();
+
+async function loadData(){
+
+let res =
+await fetch(
+`${API}?action=keuangan`
+);
+
+let data =
+await res.json();
+
+let table =
+document.getElementById("tbl");
+
+let pemasukan = 0;
+let pengeluaran = 0;
+
+for(let i=1;i<data.length;i++){
+
+table.innerHTML += `
+<tr>
+<td>${data[i][0]}</td>
+<td>${data[i][1]}</td>
+<td>${data[i][2]}</td>
+<td>Rp ${data[i][3]}</td>
+</tr>
+`;
+
+if(data[i][2]=="Pemasukan"){
+pemasukan += Number(data[i][3]);
+}else{
+pengeluaran += Number(data[i][3]);
+}
+
+}
+
+new Chart(
+document.getElementById("grafik"),
+{
+type:"doughnut",
+data:{
+labels:[
+"Pemasukan",
+"Pengeluaran"
+],
+datasets:[{
+data:[
+pemasukan,
+pengeluaran
+]
+}]
+}
+}
+);
+
+}
+
+</script>
+
+</body>
+</html>
