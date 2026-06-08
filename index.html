@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  background:#f5f5f5;
+}
+
+.container{
+  padding:15px;
+}
+
+.card{
+  background:white;
+  padding:20px;
+  border-radius:15px;
+  box-shadow:0 2px 10px rgba(0,0,0,.1);
+}
+
+input{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:1px solid #ddd;
+  border-radius:10px;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  margin-top:15px;
+  border:none;
+  border-radius:10px;
+  background:#2563eb;
+  color:white;
+  font-weight:bold;
+}
+
+.table-card{
+  background:white;
+  padding:15px;
+  margin-top:15px;
+  border-radius:15px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th,td{
+  padding:10px;
+  text-align:left;
+  border-bottom:1px solid #eee;
+}
+
+.hidden{
+  display:none;
+}
+
+.summary{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:15px;
+}
+
+.box{
+  background:#2563eb;
+  color:white;
+  padding:15px;
+  border-radius:12px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div id="loginPage" class="card">
+<h2>Login</h2>
+
+<input type="text" id="username" placeholder="Username">
+
+<input type="password" id="password" placeholder="Password">
+
+<button onclick="login()">Masuk</button>
+</div>
+
+<div id="dashboard" class="hidden">
+
+<div class="summary">
+<div class="box">
+<h4>Total Masuk</h4>
+<p id="masuk">Rp0</p>
+</div>
+
+<div class="box">
+<h4>Total Keluar</h4>
+<p id="keluar">Rp0</p>
+</div>
+</div>
+
+<div class="table-card">
+<h3>Data Keuangan</h3>
+<table id="tableData"></table>
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+function login(){
+
+const username =
+document.getElementById("username").value;
+
+const password =
+document.getElementById("password").value;
+
+google.script.run
+.withSuccessHandler(function(result){
+
+if(result){
+
+document.getElementById("loginPage")
+.classList.add("hidden");
+
+document.getElementById("dashboard")
+.classList.remove("hidden");
+
+loadData();
+
+}else{
+alert("Login gagal");
+}
+
+})
+.login(username,password);
+
+}
+
+function loadData(){
+
+google.script.run
+.withSuccessHandler(function(data){
+
+let html="";
+let masuk=0;
+let keluar=0;
+
+data.forEach((row,index)=>{
+
+if(index===0){
+
+html+=`
+<tr>
+<th>${row[0]}</th>
+<th>${row[1]}</th>
+<th>${row[2]}</th>
+<th>${row[3]}</th>
+</tr>
+`;
+
+}else{
+
+masuk+=Number(row[2])||0;
+keluar+=Number(row[3])||0;
+
+html+=`
+<tr>
+<td>${row[0]}</td>
+<td>${row[1]}</td>
+<td>${row[2]}</td>
+<td>${row[3]}</td>
+</tr>
+`;
+}
+
+});
+
+document.getElementById("tableData")
+.innerHTML=html;
+
+document.getElementById("masuk")
+.innerHTML="Rp"+masuk.toLocaleString();
+
+document.getElementById("keluar")
+.innerHTML="Rp"+keluar.toLocaleString();
+
+})
+.getDataKeuangan();
+
+}
+
+</script>
+
+</body>
+</html>
